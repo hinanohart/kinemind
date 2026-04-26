@@ -6,7 +6,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/hinanohart/kinemind/actions/workflows/ci.yml/badge.svg)](https://github.com/hinanohart/kinemind/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-141%20passing-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-248%20passing-brightgreen)](#testing)
+[![Bundle](https://img.shields.io/badge/initial%20JS-23.5KB%20gzip-brightgreen)](https://github.com/hinanohart/kinemind/blob/main/CHANGELOG.md)
 
 ---
 
@@ -89,11 +90,11 @@ tagged release.
 ## Testing
 
 ```bash
-# All TypeScript tests (45 in core-math + e2e in web-app)
+# All TypeScript tests (65 in core-math + e2e in web-app)
 pnpm -r --parallel test
 
-# All Python tests (96 unit + property + parity)
-cd python/origami_lab && uv run pytest
+# All Python tests (183 unit + property + parity + Bayesian + power)
+cd python/origami_lab && uv run pytest -k "not slow"
 ```
 
 ## License
