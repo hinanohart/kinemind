@@ -12,5 +12,7 @@ export * from "./strip.js";
 export * from "./kinematics.js";
 export * from "./symmetry.js";
 export * from "./coupling.js";
+export * from "./collision.js";
+export * from "./tree.js";
 
 export const KINEMIND_CORE_MATH_VERSION = "0.1.0" as const;

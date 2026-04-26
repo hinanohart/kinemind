@@ -1,0 +1,90 @@
+studyId: kmm-h1-pilot-2026q2
+
+# Registration platform: submit this file to OSF before data collection begins.
+# registrationDate and registrationPlatform are set by the OSF administrator
+# after the registration is locked.
+# registrationDate: "2026-05-01T00:00:00Z"
+# registrationPlatform: osf
+
+hypotheses:
+  - id: H1
+    statement: >-
+      Coupling rate increases logarithmically with cell count N.
+      Specifically, the log-odds of predicting a hinge as coupled increases
+      with log2(N), yielding a positive beta_logN coefficient in the
+      pre-specified mixed-effects logistic regression model.
+    directional: true
+    predictedDirection: positive
+    exclusionRule: >-
+      Sessions in which the participant fails fewer than 2 of 3 attention
+      check trials are excluded prior to analysis.
+
+analyses:
+  - type: primary
+    description: >-
+      Mixed-effects logistic regression of binary coupling prediction
+      (predicted_coupled) on log2(N) with by-subject and by-target-hinge
+      random intercepts.  The one-sided Wald z-test on beta_logN is the
+      primary inferential test.
+    model: >-
+      glmer(predicted_coupled ~ log2(N) + (1|subject) + (1|target_hinge),
+      data = session_data, family = binomial(link = "logit"),
+      control = glmerControl(optimizer = "bobyqa"))
+    alphaCorrection: benjamini-hochberg
+
+  - type: secondary
+    description: >-
+      Per-subject coupling rate plotted against cell count; Spearman
+      rank correlation across subjects between AQ-10 score and estimated
+      beta_logN (individual slope from a subject-level GLMM).
+    model: >-
+      cor.test(aq10_score, beta_logn_estimate, method = "spearman")
+    alphaCorrection: none
+
+  - type: exploratory
+    description: >-
+      Bayesian mixed-effects logistic regression (brms, weakly informative
+      Normal(0, 1) priors) to quantify evidence for H1 via Bayes factor
+      relative to an intercept-only model.
+    model: >-
+      brm(predicted_coupled ~ log2(N) + (1|subject) + (1|target_hinge),
+      family = bernoulli(), prior = c(prior(normal(0,1), class=b)))
+    alphaCorrection: none
+
+exclusionCriteria:
+  - rule: "attention_check_pass_rate < 2/3"
+    threshold: 0.667
+    justification: >-
+      Failure on two or more attention checks indicates task non-engagement
+      or inattention that would invalidate the coupling measurement.
+
+  - rule: "valid_trials < 30"
+    threshold: 30
+    justification: >-
+      Fewer than 30 valid trials (of the maximum 36) is insufficient to
+      obtain stable individual-level coupling estimates.
+
+  - rule: "median_rt_ms < 500 or median_rt_ms > 30000"
+    justification: >-
+      Median response time below 500 ms suggests button-mashing (speed
+      criterion); above 30 000 ms suggests disengagement or external
+      interruption.
+
+  - rule: "non_native_english_speaker"
+    justification: >-
+      Task instructions are in English; non-native speakers may
+      misunderstand the folding instructions, confounding comprehension
+      with coupling ability.
+
+stoppingRule:
+  type: fixed-N
+  N: 120
+
+ethics:
+  consentVersion: "v0.2-2026-04-27"
+  dataRetentionDays: 3650
+  # irbApproval: "[YOUR_IRB_REFERENCE]"
+
+predictedEffectSize: 0.30   # beta_logN (log-odds slope on log2(N))
+power: 0.80
+estimatedSampleSize: 120

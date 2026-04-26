@@ -79,6 +79,9 @@ importers:
         specifier: ^5.0.3
         version: 5.0.12(@types/react@19.2.14)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
     devDependencies:
+      '@axe-core/playwright':
+        specifier: ^4.10.1
+        version: 4.11.2(playwright-core@1.59.1)
       '@playwright/test':
         specifier: ^1.49.1
         version: 1.59.1
@@ -97,6 +100,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.5.0(postcss@8.5.12)
+      axe-playwright:
+        specifier: ^2.0.3
+        version: 2.2.2(playwright@1.59.1)
       postcss:
         specifier: ^8.4.49
         version: 8.5.12
@@ -119,6 +125,11 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
+
+  '@axe-core/playwright@4.11.2':
+    resolution: {integrity: sha512-iP6hfNl9G0j/SEUSo8M7D80RbcDo9KRAAfDP4IT5OHB+Wm6zUHIrm8Y51BKI+Oyqduvipf9u1hcRy57zCBKzWQ==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -893,6 +904,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/junit-report-builder@3.0.2':
+    resolution: {integrity: sha512-R5M+SYhMbwBeQcNXYWNCZkl09vkVfAtcPIaCGdzIkkbeaTrVbGQ7HVgi4s+EmM/M1K4ZuWQH0jGcvMvNePfxYA==}
+
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
@@ -1032,6 +1046,21 @@ packages:
     hasBin: true
     peerDependencies:
       postcss: ^8.1.0
+
+  axe-core@4.11.3:
+    resolution: {integrity: sha512-zBQouZixDTbo3jMGqHKyePxYxr1e5W8UdTmBQ7sNtaA9M2bE32daxxPLS/jojhKOHxQ7LWwPjfiwf/fhaJWzlg==}
+    engines: {node: '>=4'}
+
+  axe-html-reporter@2.2.11:
+    resolution: {integrity: sha512-WlF+xlNVgNVWiM6IdVrsh+N0Cw7qupe5HT9N6Uyi+aN7f6SSi92RDomiP1noW8OWIV85V6x404m5oKMeqRV3tQ==}
+    engines: {node: '>=8.9.0'}
+    peerDependencies:
+      axe-core: '>=3'
+
+  axe-playwright@2.2.2:
+    resolution: {integrity: sha512-h350/grzDCPgpuWV7eEOqr/f61Xn07Gi9f9B3Ew4rW6/nFtpdEJYW6jgRATorgAGXjEAYFTnaY3sEys39wDw4A==}
+    peerDependencies:
+      playwright: '>1.0.0'
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -1436,6 +1465,10 @@ packages:
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
 
+  junit-report-builder@5.1.2:
+    resolution: {integrity: sha512-HzvLbEQcoqN2LmGnloShxu2hLadi/rkOTU3zt61UeMICLS0wGDvbf8neIi6+bGkxMnAePIcFMFnbqV+r6YvwxA==}
+    engines: {node: '>=16'}
+
   lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
 
@@ -1452,6 +1485,9 @@ packages:
 
   lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
+
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -1477,6 +1513,10 @@ packages:
 
   magicast@0.3.5:
     resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
+
+  make-dir@3.1.0:
+    resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
+    engines: {node: '>=8'}
 
   make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
@@ -1516,6 +1556,10 @@ packages:
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  mustache@4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -2104,6 +2148,10 @@ packages:
     resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
     engines: {node: '>=12'}
 
+  xmlbuilder@15.1.1:
+    resolution: {integrity: sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg==}
+    engines: {node: '>=8.0'}
+
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
@@ -2160,6 +2208,11 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
+
+  '@axe-core/playwright@4.11.2(playwright-core@1.59.1)':
+    dependencies:
+      axe-core: 4.11.3
+      playwright-core: 1.59.1
 
   '@babel/code-frame@7.29.0':
     dependencies:
@@ -2873,6 +2926,8 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/junit-report-builder@3.0.2': {}
+
   '@types/node@12.20.55': {}
 
   '@types/node@22.19.17':
@@ -3028,6 +3083,22 @@ snapshots:
       picocolors: 1.1.1
       postcss: 8.5.12
       postcss-value-parser: 4.2.0
+
+  axe-core@4.11.3: {}
+
+  axe-html-reporter@2.2.11(axe-core@4.11.3):
+    dependencies:
+      axe-core: 4.11.3
+      mustache: 4.2.0
+
+  axe-playwright@2.2.2(playwright@1.59.1):
+    dependencies:
+      '@types/junit-report-builder': 3.0.2
+      axe-core: 4.11.3
+      axe-html-reporter: 2.2.11(axe-core@4.11.3)
+      junit-report-builder: 5.1.2
+      picocolors: 1.1.1
+      playwright: 1.59.1
 
   balanced-match@1.0.2: {}
 
@@ -3433,6 +3504,12 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  junit-report-builder@5.1.2:
+    dependencies:
+      lodash: 4.18.1
+      make-dir: 3.1.0
+      xmlbuilder: 15.1.1
+
   lie@3.3.0:
     dependencies:
       immediate: 3.0.6
@@ -3446,6 +3523,8 @@ snapshots:
       p-locate: 4.1.0
 
   lodash.startcase@4.4.0: {}
+
+  lodash@4.18.1: {}
 
   loose-envify@1.4.0:
     dependencies:
@@ -3473,6 +3552,10 @@ snapshots:
       '@babel/parser': 7.29.2
       '@babel/types': 7.29.0
       source-map-js: 1.2.1
+
+  make-dir@3.1.0:
+    dependencies:
+      semver: 6.3.1
 
   make-dir@4.0.0:
     dependencies:
@@ -3504,6 +3587,8 @@ snapshots:
   mri@1.2.0: {}
 
   ms@2.1.3: {}
+
+  mustache@4.2.0: {}
 
   mz@2.7.0:
     dependencies:
@@ -4039,6 +4124,8 @@ snapshots:
       ansi-styles: 6.2.3
       string-width: 5.1.2
       strip-ansi: 7.2.0
+
+  xmlbuilder@15.1.1: {}
 
   yallist@3.1.1: {}
 

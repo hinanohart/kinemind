@@ -174,3 +174,51 @@ def forward_kinematics_full(
         quats=quats,
         rotations=rotations,
     )
+
+
+def cell_corners_local(cell_length: float) -> NDArray[np.float64]:
+    """Return the 4 corners of a cell in its local frame (CCW from +Z).
+
+    Mirrors TypeScript ``cellCornersLocal`` in kinematics.ts.
+
+    Args:
+        cell_length: Cell length along +X.
+
+    Returns:
+        Corners array shape (4, 3) in CCW order viewed from +Z.
+    """
+    half = 0.5
+    return np.array(
+        [
+            [0.0, -half, 0.0],
+            [cell_length, -half, 0.0],
+            [cell_length, half, 0.0],
+            [0.0, half, 0.0],
+        ],
+        dtype=np.float64,
+    )
+
+
+def cell_corners_world(
+    config: StripConfig,
+    result: "KinematicsResult",
+) -> list[NDArray[np.float64]]:
+    """Return world-frame corners of every cell.
+
+    Mirrors TypeScript ``cellCornersWorld`` in kinematics.ts.
+
+    Args:
+        config: Strip geometry.
+        result: KinematicsResult from :func:`forward_kinematics_full`.
+
+    Returns:
+        List of length n_cells; each element is an ndarray shape (4, 3).
+    """
+    out: list[NDArray[np.float64]] = []
+    for i, cell_pose in enumerate(result.cells):
+        L = float(config.cell_lengths[i])
+        local = cell_corners_local(L)
+        # Apply SE3 transform to each corner.
+        world = np.stack([se3_apply(cell_pose.frame, local[k]) for k in range(4)])
+        out.append(world)
+    return out

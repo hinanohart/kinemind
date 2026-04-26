@@ -1,4 +1,4 @@
-"""Coupling matrix tests: mirror beta recovery, equivariance, spectral radius."""
+"""Coupling matrix tests: mirror beta recovery, equivariance, spectral radius, bootstrap CI."""
 
 from __future__ import annotations
 
@@ -6,10 +6,12 @@ import numpy as np
 import pytest
 
 from origami_lab.coupling import (
+    CouplingWithCI,
     MentalCoupling,
     apply_coupling,
     effective_rank,
     estimate_coupling,
+    estimate_coupling_with_ci,
     identity_coupling,
     mirror_coupling,
     mirror_coupling_matrix,
@@ -182,3 +184,101 @@ def test_coupling_equivariance_residual_analytic() -> None:
     from origami_lab.coupling import coupling_equivariance_residual
     residual = coupling_equivariance_residual(mc, G)
     assert residual < 1e-9, f"Residual = {residual}"
+
+
+# ---------------------------------------------------------------------------
+# CouplingWithCI / estimate_coupling_with_ci tests (Item I)
+# ---------------------------------------------------------------------------
+
+
+def test_coupling_with_ci_basic_shape() -> None:
+    """estimate_coupling_with_ci returns correct shapes."""
+    rng = np.random.default_rng(0)
+    n = 4
+    K = 60
+    X = rng.standard_normal((K, n))
+    Y = X.copy()
+    result = estimate_coupling_with_ci(X, Y, n_hinges=n, bootstrap_n=200, seed=1)
+    assert isinstance(result, CouplingWithCI)
+    assert result.C_hat.shape == (n, n)
+    assert result.lower_95.shape == (n, n)
+    assert result.upper_95.shape == (n, n)
+    assert result.method == "non-parametric"
+    assert result.bootstrap_n >= 1
+
+
+def test_coupling_with_ci_lower_le_upper() -> None:
+    """lower_95 <= C_hat <= upper_95 element-wise for clean data."""
+    rng = np.random.default_rng(42)
+    n = 4
+    K = 80
+    X = rng.standard_normal((K, n))
+    beta = 0.3
+    M = mirror_coupling_matrix(n, beta)
+    Y = (M @ X.T).T
+    result = estimate_coupling_with_ci(X, Y, n_hinges=n, bootstrap_n=300, seed=7)
+    assert np.all(result.lower_95 <= result.upper_95 + 1e-12)
+
+
+def test_coupling_with_ci_synthetic_coverage() -> None:
+    """95% CI should cover the true C in at least 92% of synthetic experiments.
+
+    We generate 100 independent datasets from mirror coupling (beta=0.4, n=4)
+    and check element-wise coverage across all n^2 = 16 cells. Pass threshold
+    is 92%, giving ~ 5 sigma margin over 100 trials.
+    """
+    rng = np.random.default_rng(2024)
+    n = 4
+    beta = 0.4
+    C_true = mirror_coupling_matrix(n, beta)
+    K = 80
+    n_experiments = 100
+    bootstrap_n = 300
+
+    covered = 0
+    total = 0
+    for exp_idx in range(n_experiments):
+        X = rng.standard_normal((K, n))
+        Y = (C_true @ X.T).T + 0.05 * rng.standard_normal((K, n))
+        result = estimate_coupling_with_ci(
+            X, Y, n_hinges=n, bootstrap_n=bootstrap_n, seed=exp_idx
+        )
+        for i in range(n):
+            for j in range(n):
+                total += 1
+                if result.lower_95[i, j] <= C_true[i, j] <= result.upper_95[i, j]:
+                    covered += 1
+
+    coverage = covered / total
+    assert coverage >= 0.92, (
+        f"CI coverage {coverage:.3f} < 0.92 over {n_experiments} experiments "
+        f"({total} total cells)"
+    )
+
+
+def test_coupling_with_ci_point_estimate_matches_estimate_coupling() -> None:
+    """C_hat in CouplingWithCI must exactly match estimate_coupling."""
+    rng = np.random.default_rng(99)
+    n = 5
+    K = 100
+    X = rng.standard_normal((K, n))
+    Y = X + 0.1 * rng.standard_normal((K, n))
+    C_direct = estimate_coupling(X, Y, n_hinges=n, lambda_=0.01)
+    result = estimate_coupling_with_ci(X, Y, n_hinges=n, lambda_=0.01, bootstrap_n=100, seed=0)
+    assert np.allclose(result.C_hat, C_direct, atol=1e-12)
+
+
+def test_coupling_with_ci_invalid_method() -> None:
+    """Unsupported method should raise ValueError."""
+    X = np.eye(4)
+    Y = np.eye(4)
+    with pytest.raises(ValueError, match="non-parametric"):
+        estimate_coupling_with_ci(X, Y, n_hinges=4, method="analytic")
+
+
+def test_mental_coupling_warnings_field() -> None:
+    """MentalCoupling.warnings field should be storable and default to empty tuple."""
+    mc = MentalCoupling(matrix=np.eye(3), n_hinges=3)
+    assert mc.warnings == ()
+    mc2 = MentalCoupling(matrix=np.eye(3), n_hinges=3, warnings=("near-singular",))
+    assert mc2.warnings == ("near-singular",)

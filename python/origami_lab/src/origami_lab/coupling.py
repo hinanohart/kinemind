@@ -13,7 +13,7 @@ Numerically mirrors TypeScript ``@kinemind/core-math`` coupling.ts.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 import numpy as np
@@ -39,6 +39,10 @@ class MentalCoupling:
         group: Optional symmetry group used during estimation.
         source: 'analytic' if built analytically, 'empirical' if estimated.
         beta: Strength parameter in [0,1] when source='analytic'.
+        warnings: List of diagnostic warning strings collected during estimation.
+            Mirrors the adaptive singularity detection in coupling.ts
+            solveLinearSystem. Non-fatal conditions (near-singular Gram matrix
+            with regularisation applied) are stored here rather than raised.
     """
 
     matrix: NDArray[np.float64]
@@ -46,6 +50,7 @@ class MentalCoupling:
     group: Optional[SymmetryGroup] = None
     source: str = "analytic"
     beta: Optional[float] = None
+    warnings: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         """Validate and sanitize inputs."""
@@ -161,6 +166,57 @@ def apply_coupling(
     return out
 
 
+def _solve_gram(
+    XtX: NDArray[np.float64],
+    XtY: NDArray[np.float64],
+    n_hinges: int,
+    lambda_: float,
+) -> tuple[NDArray[np.float64], list[str]]:
+    """Solve the normal equations XtX B = XtY with adaptive singularity detection.
+
+    Mirrors the adaptive ``singularThreshold`` logic in coupling.ts
+    ``solveLinearSystem``.  When the effective condition number suggests near-
+    singularity but regularisation has been applied, a warning is emitted
+    instead of raising (matching the TS chained-warning pattern).
+
+    Args:
+        XtX: Gram matrix (n_hinges, n_hinges), may include lambda ridge term.
+        XtY: Cross-product matrix (n_hinges, n_hinges).
+        n_hinges: Dimension n.
+        lambda_: Regularisation strength (>= 0).
+
+    Returns:
+        Tuple (B, warnings) where B = XtX^{-1} XtY and warnings is a list
+        of diagnostic strings (empty when no near-singularity was detected).
+
+    Raises:
+        ValueError: if the Gram matrix is singular and lambda_ == 0.
+    """
+    warns: list[str] = []
+    # Adaptive threshold: eps_mach * n * ||XtX||_F (same formula as TS).
+    frob = float(np.linalg.norm(XtX, "fro"))
+    singular_threshold = max(2.22e-16 * n_hinges * frob, 1e-300)
+    eigvals = np.linalg.eigvalsh(XtX)
+    min_eig = float(eigvals[0])
+    if min_eig < singular_threshold:
+        msg = (
+            f"estimate_coupling: Gram matrix near-singular "
+            f"(min_eigval={min_eig:.3e}, threshold={singular_threshold:.3e})"
+        )
+        if lambda_ > 0.0:
+            warns.append(msg + f"; ridge lambda={lambda_:.3e} applied")
+            logger.warning(warns[-1])
+        else:
+            raise ValueError(msg + "; add lambda_ > 0 for regularisation")
+
+    try:
+        B = sp_linalg.solve(XtX, XtY, assume_a="sym")
+    except sp_linalg.LinAlgError as exc:
+        raise ValueError("estimate_coupling: Gram matrix is singular") from exc
+
+    return B, warns
+
+
 def estimate_coupling(
     intents: NDArray[np.float64],
     responses: NDArray[np.float64],
@@ -189,7 +245,7 @@ def estimate_coupling(
         Estimated coupling matrix ndarray shape (n_hinges, n_hinges).
 
     Raises:
-        ValueError: if input shapes are inconsistent.
+        ValueError: if input shapes are inconsistent or Gram matrix is singular.
     """
     from origami_lab.symmetry import klein_four_strip  # local to avoid cycle
 
@@ -213,14 +269,9 @@ def estimate_coupling(
     XtY = X.T @ Y
 
     if lambda_ > 0.0:
-        XtX += lambda_ * np.eye(n_hinges, dtype=np.float64)
+        XtX = XtX + lambda_ * np.eye(n_hinges, dtype=np.float64)
 
-    # Solve XtX B = XtY  =>  B = C^T  =>  C = B^T
-    try:
-        B = sp_linalg.solve(XtX, XtY, assume_a="sym")
-    except sp_linalg.LinAlgError as exc:
-        raise ValueError("estimate_coupling: Gram matrix is singular") from exc
-
+    B, _warns = _solve_gram(XtX, XtY, n_hinges, lambda_)
     C = B.T
 
     # Optional symmetry projection.
@@ -231,6 +282,139 @@ def estimate_coupling(
         C = reynolds_project(effective_group, C)
 
     return C
+
+
+@dataclass(frozen=True)
+class CouplingWithCI:
+    """Coupling matrix estimate with bootstrapped confidence intervals.
+
+    Attributes:
+        C_hat: Point estimate (n_hinges, n_hinges).
+        lower_95: 2.5th percentile of bootstrap distribution (n_hinges, n_hinges).
+        upper_95: 97.5th percentile of bootstrap distribution (n_hinges, n_hinges).
+        bootstrap_n: Number of bootstrap replicates used.
+        method: 'non-parametric' or 'analytic'.
+    """
+
+    C_hat: NDArray[np.float64]
+    lower_95: NDArray[np.float64]
+    upper_95: NDArray[np.float64]
+    bootstrap_n: int
+    method: str
+
+    def __post_init__(self) -> None:
+        """Validate field types."""
+        if self.method not in ("non-parametric", "analytic"):
+            raise ValueError(
+                f"CouplingWithCI: method must be 'non-parametric' or 'analytic' "
+                f"(got '{self.method}')"
+            )
+        if self.bootstrap_n < 1:
+            raise ValueError(
+                f"CouplingWithCI: bootstrap_n must be >= 1 (got {self.bootstrap_n})"
+            )
+
+
+def estimate_coupling_with_ci(
+    intents: NDArray[np.float64],
+    responses: NDArray[np.float64],
+    n_hinges: int,
+    *,
+    lambda_: float = 0.0,
+    bootstrap_n: int = 1000,
+    seed: int = 0,
+    method: str = "non-parametric",
+) -> CouplingWithCI:
+    """Estimate coupling matrix with 95% bootstrap confidence intervals.
+
+    Extends :func:`estimate_coupling` with non-parametric case bootstrap CIs.
+    The point estimate ``C_hat`` is identical to ``estimate_coupling``'s output.
+
+    Bootstrap procedure (non-parametric):
+        For each replicate, resample K rows (with replacement) from the
+        (intents, responses) paired dataset, refit via OLS, and collect
+        the empirical 2.5/97.5 percentile for each matrix element.
+
+    Args:
+        intents: Intent angles shape (K, n_hinges).
+        responses: Response angles shape (K, n_hinges).
+        n_hinges: Number of hinges.
+        lambda_: Tikhonov regularisation applied in each bootstrap fit.
+        bootstrap_n: Number of bootstrap replicates (default 1000).
+        seed: Random seed for reproducibility (default 0).
+        method: Bootstrap method; currently only 'non-parametric' is supported.
+
+    Returns:
+        CouplingWithCI with C_hat, lower_95, upper_95, bootstrap_n, method.
+
+    Raises:
+        ValueError: if inputs are inconsistent or method is unsupported.
+    """
+    if method != "non-parametric":
+        raise ValueError(
+            f"estimate_coupling_with_ci: only 'non-parametric' method is supported "
+            f"(got '{method}')"
+        )
+    X = np.asarray(intents, dtype=np.float64)
+    Y = np.asarray(responses, dtype=np.float64)
+    if X.ndim != 2 or Y.ndim != 2:
+        raise ValueError(
+            "estimate_coupling_with_ci: intents and responses must be 2-D arrays"
+        )
+    if X.shape != Y.shape:
+        raise ValueError(
+            "estimate_coupling_with_ci: intents and responses shapes disagree"
+        )
+    K, n = X.shape
+    if n != n_hinges:
+        raise ValueError(
+            f"estimate_coupling_with_ci: column count {n} does not match n_hinges={n_hinges}"
+        )
+    if K < 2:
+        raise ValueError("estimate_coupling_with_ci: at least 2 trials are required for bootstrap")
+    if bootstrap_n < 1:
+        raise ValueError(f"estimate_coupling_with_ci: bootstrap_n must be >= 1 (got {bootstrap_n})")
+
+    # Point estimate.
+    C_hat = estimate_coupling(X, Y, n_hinges, lambda_=lambda_)
+
+    # Non-parametric bootstrap.
+    rng = np.random.default_rng(seed)
+    boot_samples: list[NDArray[np.float64]] = []
+
+    for _ in range(bootstrap_n):
+        idx = rng.integers(0, K, size=K)
+        Xb = X[idx]
+        Yb = Y[idx]
+        XtX_b = Xb.T @ Xb
+        XtY_b = Xb.T @ Yb
+        if lambda_ > 0.0:
+            XtX_b = XtX_b + lambda_ * np.eye(n_hinges, dtype=np.float64)
+        try:
+            B_b, _ = _solve_gram(XtX_b, XtY_b, n_hinges, lambda_)
+            boot_samples.append(B_b.T)
+        except ValueError:
+            # Near-singular bootstrap sample: skip without counting as failure.
+            logger.debug("estimate_coupling_with_ci: singular bootstrap sample skipped")
+            continue
+
+    if len(boot_samples) == 0:
+        raise ValueError(
+            "estimate_coupling_with_ci: all bootstrap samples were singular; "
+            "increase lambda_ or provide more data"
+        )
+
+    stack = np.stack(boot_samples, axis=0)  # (B, n, n)
+    lower_95 = np.percentile(stack, 2.5, axis=0)
+    upper_95 = np.percentile(stack, 97.5, axis=0)
+
+    return CouplingWithCI(
+        C_hat=C_hat,
+        lower_95=lower_95,
+        upper_95=upper_95,
+        bootstrap_n=len(boot_samples),
+        method=method,
+    )
 
 
 def coupling_equivariance_residual(

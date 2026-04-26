@@ -1,6 +1,7 @@
 /**
  * Panel where users enter their subjective mental predictions.
  * For each hinge: a checkbox (coupled?) and a number input (predicted angle).
+ * Layout uses a semantic <table> for proper a11y cell association.
  */
 
 import { useStripStore } from "../stores/strip-store";
@@ -42,58 +43,72 @@ export function MentalPredictionPanel(): React.ReactElement {
         For each hinge: check if you think it co-activates, then enter your predicted angle (°)
       </p>
 
-      <div className="space-y-1">
-        {/* Header row */}
-        <div className="grid grid-cols-[2rem_1fr_5rem_5rem] gap-2 text-xs text-slate-500 pb-1 border-b border-slate-700">
-          <span aria-hidden="true">H</span>
-          <span>Co-active?</span>
-          <span className="text-right">Predicted (°)</span>
-          <span className="text-right">Actual (°)</span>
-        </div>
+      <table className="w-full text-xs border-collapse" aria-label="Hinge prediction table">
+        <thead>
+          <tr className="text-slate-500 border-b border-slate-700">
+            <th scope="col" className="text-left py-1 w-8">
+              H
+            </th>
+            <th scope="col" className="text-left py-1">
+              Co-active?
+            </th>
+            <th scope="col" className="text-right py-1">
+              Predicted (°)
+            </th>
+            <th scope="col" className="text-right py-1">
+              Actual (°)
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: nHinges }, (_, i) => {
+            const isCoupled = mentalPrediction.coupled[i] ?? false;
+            const predAngle = mentalPrediction.predicted[i] ?? 0;
+            const actualAngle = thetaMental[i] ?? 0;
 
-        {Array.from({ length: nHinges }, (_, i) => {
-          const isCoupled = mentalPrediction.coupled[i] ?? false;
-          const predAngle = mentalPrediction.predicted[i] ?? 0;
-          const actualAngle = thetaMental[i] ?? 0;
+            return (
+              <tr key={i} className="border-b border-slate-800 last:border-0">
+                <th scope="row" className="text-left text-slate-400 py-1 font-normal">
+                  {i + 1}
+                </th>
 
-          return (
-            <div key={i} className="grid grid-cols-[2rem_1fr_5rem_5rem] gap-2 items-center text-xs">
-              <span className="text-slate-400" aria-hidden="true">
-                {i + 1}
-              </span>
+                <td className="py-1">
+                  <label className="flex items-center gap-1.5 cursor-pointer w-fit">
+                    <input
+                      type="checkbox"
+                      checked={isCoupled}
+                      onChange={(e) => setPredictionCoupled(i, e.target.checked)}
+                      className="w-3 h-3 accent-blue-500"
+                      aria-label={`Hinge ${i + 1} co-activates`}
+                    />
+                    <span className="text-slate-300">{isCoupled ? "yes" : "no"}</span>
+                  </label>
+                </td>
 
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isCoupled}
-                  onChange={(e) => setPredictionCoupled(i, e.target.checked)}
-                  className="w-3 h-3 accent-blue-500"
-                  aria-label={`Hinge ${i + 1} co-activates`}
-                />
-                <span className="text-slate-300 text-xs">{isCoupled ? "yes" : "no"}</span>
-              </label>
+                <td className="py-1 text-right">
+                  <input
+                    type="number"
+                    min={-180}
+                    max={180}
+                    step={1}
+                    value={formatAngle(predAngle)}
+                    onChange={(e) => setPredictionAngle(i, parseAngle(e.target.value))}
+                    className="bg-slate-700 border border-slate-600 rounded px-1 py-0.5 text-xs text-right text-slate-200 w-16 focus:outline-none focus:border-blue-500"
+                    aria-label={`Hinge ${i + 1} predicted angle in degrees`}
+                  />
+                </td>
 
-              <input
-                type="number"
-                min={-180}
-                max={180}
-                step={1}
-                value={formatAngle(predAngle)}
-                onChange={(e) => setPredictionAngle(i, parseAngle(e.target.value))}
-                className="bg-slate-700 border border-slate-600 rounded px-1 py-0.5 text-xs text-right text-slate-200 w-full focus:outline-none focus:border-blue-500"
-                aria-label={`Hinge ${i + 1} predicted angle in degrees`}
-              />
-
-              <span
-                className="text-slate-400 font-mono text-right"
-                aria-label={`Hinge ${i + 1} actual mental angle: ${formatAngle(actualAngle)} degrees`}
-              >
-                {formatAngle(actualAngle)}°
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                <td
+                  className="text-slate-400 font-mono text-right py-1"
+                  aria-label={`Hinge ${i + 1} actual mental angle: ${formatAngle(actualAngle)} degrees`}
+                >
+                  {formatAngle(actualAngle)}°
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

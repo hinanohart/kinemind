@@ -52,7 +52,7 @@ function CellMesh({
 
   return (
     <group position={position} quaternion={quaternion}>
-      <mesh ref={meshRef} position={centreOffset} aria-label={`Cell ${index + 1}`}>
+      <mesh ref={meshRef} position={centreOffset}>
         <planeGeometry args={[cellLength, 1]} />
         <meshStandardMaterial
           color={color}

@@ -10,10 +10,12 @@ dependencies = [
     "scipy>=1.14",
     "sympy>=1.13",
     "typer>=0.15",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
 test = ["pytest>=8.3", "hypothesis>=6.118", "pytest-cov>=6.0"]
+bayes = ["numpyro>=0.16", "jax[cpu]>=0.4"]
 
 [project.scripts]
 origami-lab = "origami_lab.cli:app"
@@ -28,3 +30,8 @@ packages = ["src/origami_lab"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[dependency-groups]
+dev = [
+    "textstat>=0.7.13",
+]

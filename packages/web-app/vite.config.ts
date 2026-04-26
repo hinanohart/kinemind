@@ -17,6 +17,16 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@kinemind/core-math", "@kinemind/shared-types"],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "three-r3f": ["three", "@react-three/fiber", "@react-three/drei"],
+          "core-math": ["@kinemind/core-math"],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     strictPort: false,

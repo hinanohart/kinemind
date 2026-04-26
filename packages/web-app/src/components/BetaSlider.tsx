@@ -41,8 +41,10 @@ export function BetaSlider(): React.ReactElement {
         />
       </div>
 
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-slate-400">Coupling type:</span>
+      <div role="group" aria-label="Coupling type" className="flex items-center gap-3">
+        <span className="text-xs text-slate-400" aria-hidden="true">
+          Coupling type:
+        </span>
         {(["mirror", "identity"] as CouplingType[]).map((type) => (
           <button
             key={type}

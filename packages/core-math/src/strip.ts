@@ -74,8 +74,8 @@ export function nHinges(config: StripConfig): number {
 }
 
 /**
- * Reflect a state through the strip midpoint.
- * sigma . theta = (theta_{N-1}, theta_{N-2}, ..., theta_1).
+ * Reflect a state through the strip midpoint (0-indexed).
+ * sigma . theta = (theta_{N-2}, theta_{N-3}, ..., theta_0).
  */
 export function reflectState(state: StripState): StripState {
   return { thetas: [...state.thetas].reverse() };

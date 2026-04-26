@@ -7,7 +7,10 @@
  *   - thetaMental: coupling-derived mental prediction (computed from thetaIntent)
  *   - beta: coupling strength in [0, 1]
  *   - couplingType: 'mirror' | 'identity'
- *   - trialHistory: saved trial records
+ *   - trialHistory: saved trial records (persisted to sessionStorage)
+ *
+ * Persistence: only trialHistory is persisted (key: "kinemind-session-v1").
+ * All UI state (thetaIntent, thetaMental, etc.) resets on page load.
  */
 
 import {
@@ -19,6 +22,7 @@ import {
 } from "@kinemind/core-math";
 import type { TrialResponse } from "@kinemind/shared-types";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export type CouplingType = "mirror" | "identity";
 
@@ -109,101 +113,154 @@ function buildInitialArrays(nCells: number): {
 const DEFAULT_N_CELLS = 8;
 const DEFAULT_BETA = 0.6;
 
-export const useStripStore = create<StripStore>((set) => {
-  const { thetaIntent, thetaMental, mentalPrediction } = buildInitialArrays(DEFAULT_N_CELLS);
+export const useStripStore = create<StripStore>()(
+  persist(
+    (set) => {
+      const { thetaIntent, thetaMental, mentalPrediction } = buildInitialArrays(DEFAULT_N_CELLS);
 
-  return {
-    nCells: DEFAULT_N_CELLS,
-    config: makeUniformStrip(DEFAULT_N_CELLS),
-    thetaIntent,
-    thetaMental,
-    beta: DEFAULT_BETA,
-    couplingType: "mirror" as CouplingType,
-    mentalPrediction,
-    trialHistory: [],
-    predictionRmse: 0,
-
-    setNCells: (n: number) => {
-      const safeN = Math.max(2, Math.min(50, n));
-      const { thetaIntent, thetaMental, mentalPrediction } = buildInitialArrays(safeN);
-      set({
-        nCells: safeN,
-        config: makeUniformStrip(safeN),
+      return {
+        nCells: DEFAULT_N_CELLS,
+        config: makeUniformStrip(DEFAULT_N_CELLS),
         thetaIntent,
         thetaMental,
+        beta: DEFAULT_BETA,
+        couplingType: "mirror" as CouplingType,
         mentalPrediction,
+        trialHistory: [],
         predictionRmse: 0,
-      });
-    },
 
-    setThetaIntent: (index: number, value: number) => {
-      set((state) => {
-        const next = [...state.thetaIntent];
-        next[index] = Math.max(-Math.PI, Math.min(Math.PI, value));
-        const nextMental = computeMental(next, state.beta, state.couplingType);
-        return {
-          thetaIntent: next,
-          thetaMental: nextMental,
-          predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
+        setNCells: (n: number) => {
+          const safeN = Math.max(2, Math.min(50, n));
+          const {
+            thetaIntent: ti,
+            thetaMental: tm,
+            mentalPrediction: mp,
+          } = buildInitialArrays(safeN);
+          set({
+            nCells: safeN,
+            config: makeUniformStrip(safeN),
+            thetaIntent: ti,
+            thetaMental: tm,
+            mentalPrediction: mp,
+            predictionRmse: 0,
+          });
+        },
+
+        setThetaIntent: (index: number, value: number) => {
+          set((state) => {
+            const next = [...state.thetaIntent];
+            next[index] = Math.max(-Math.PI, Math.min(Math.PI, value));
+            const nextMental = computeMental(next, state.beta, state.couplingType);
+            return {
+              thetaIntent: next,
+              thetaMental: nextMental,
+              predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
+            };
+          });
+        },
+
+        setBeta: (beta: number) => {
+          set((state) => {
+            const safeBeta = Math.max(0, Math.min(1, beta));
+            const nextMental = computeMental(state.thetaIntent, safeBeta, state.couplingType);
+            return {
+              beta: safeBeta,
+              thetaMental: nextMental,
+              predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
+            };
+          });
+        },
+
+        setCouplingType: (type: CouplingType) => {
+          set((state) => {
+            const nextMental = computeMental(state.thetaIntent, state.beta, type);
+            return {
+              couplingType: type,
+              thetaMental: nextMental,
+              predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
+            };
+          });
+        },
+
+        setPredictionCoupled: (index: number, coupled: boolean) => {
+          set((state) => {
+            const next = [...state.mentalPrediction.coupled];
+            next[index] = coupled;
+            return {
+              mentalPrediction: { ...state.mentalPrediction, coupled: next },
+            };
+          });
+        },
+
+        setPredictionAngle: (index: number, angle: number) => {
+          set((state) => {
+            const next = [...state.mentalPrediction.predicted];
+            next[index] = Math.max(-Math.PI, Math.min(Math.PI, angle));
+            return {
+              mentalPrediction: {
+                ...state.mentalPrediction,
+                predicted: next,
+              },
+              predictionRmse: computeRmse(state.thetaMental, next),
+            };
+          });
+        },
+
+        addTrial: (trial: TrialResponse) => {
+          set((state) => ({
+            trialHistory: [...state.trialHistory, trial],
+          }));
+        },
+
+        resetTrials: () => {
+          set({ trialHistory: [] });
+        },
+      };
+    },
+    {
+      name: "kinemind-session-v1",
+      storage: {
+        getItem: (key) => {
+          const value = sessionStorage.getItem(key);
+          return value ? (JSON.parse(value) as ReturnType<typeof JSON.parse>) : null;
+        },
+        setItem: (key, value) => {
+          sessionStorage.setItem(key, JSON.stringify(value));
+        },
+        removeItem: (key) => {
+          sessionStorage.removeItem(key);
+        },
+      },
+      // Persist only trialHistory; UI state resets on page load (Prolific compatible).
+      partialize: (state: StripStore) => ({ trialHistory: state.trialHistory }),
+      // Migration handler for future breaking schema changes.
+      version: 1,
+      migrate: (persistedState, _version): StripStore => {
+        // On schema mismatch, start fresh so the store re-initialises cleanly.
+        const { thetaIntent, thetaMental, mentalPrediction } = buildInitialArrays(DEFAULT_N_CELLS);
+        const base: StripStore = {
+          nCells: DEFAULT_N_CELLS,
+          config: makeUniformStrip(DEFAULT_N_CELLS),
+          thetaIntent,
+          thetaMental,
+          beta: DEFAULT_BETA,
+          couplingType: "mirror" as CouplingType,
+          mentalPrediction,
+          trialHistory: [],
+          predictionRmse: 0,
+          // Actions are attached by zustand after hydration; cast satisfies TS here.
+          setNCells: () => {},
+          setThetaIntent: () => {},
+          setBeta: () => {},
+          setCouplingType: () => {},
+          setPredictionCoupled: () => {},
+          setPredictionAngle: () => {},
+          addTrial: () => {},
+          resetTrials: () => {},
         };
-      });
+        const prev = persistedState as { trialHistory?: readonly TrialResponse[] };
+        return { ...base, trialHistory: prev?.trialHistory ?? [] };
+      },
     },
-
-    setBeta: (beta: number) => {
-      set((state) => {
-        const safeBeta = Math.max(0, Math.min(1, beta));
-        const nextMental = computeMental(state.thetaIntent, safeBeta, state.couplingType);
-        return {
-          beta: safeBeta,
-          thetaMental: nextMental,
-          predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
-        };
-      });
-    },
-
-    setCouplingType: (type: CouplingType) => {
-      set((state) => {
-        const nextMental = computeMental(state.thetaIntent, state.beta, type);
-        return {
-          couplingType: type,
-          thetaMental: nextMental,
-          predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
-        };
-      });
-    },
-
-    setPredictionCoupled: (index: number, coupled: boolean) => {
-      set((state) => {
-        const next = [...state.mentalPrediction.coupled];
-        next[index] = coupled;
-        return {
-          mentalPrediction: { ...state.mentalPrediction, coupled: next },
-        };
-      });
-    },
-
-    setPredictionAngle: (index: number, angle: number) => {
-      set((state) => {
-        const next = [...state.mentalPrediction.predicted];
-        next[index] = Math.max(-Math.PI, Math.min(Math.PI, angle));
-        return {
-          mentalPrediction: {
-            ...state.mentalPrediction,
-            predicted: next,
-          },
-          predictionRmse: computeRmse(state.thetaMental, next),
-        };
-      });
-    },
-
-    addTrial: (trial: TrialResponse) => {
-      set((state) => ({
-        trialHistory: [...state.trialHistory, trial],
-      }));
-    },
-
-    resetTrials: () => {
-      set({ trialHistory: [] });
-    },
-  };
-});
+  ),
+);

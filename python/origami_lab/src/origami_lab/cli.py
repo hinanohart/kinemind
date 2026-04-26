@@ -164,5 +164,108 @@ def kinematics(
     typer.echo(json.dumps(output, indent=2))
 
 
+@app.command()
+def power(
+    hypothesis: Annotated[
+        str,
+        typer.Option("--hypothesis", help="Hypothesis identifier, e.g. H1."),
+    ] = "H1",
+    n: Annotated[
+        int,
+        typer.Option("--n", help="Number of subjects for power estimate."),
+    ] = 120,
+    beta: Annotated[
+        float,
+        typer.Option(
+            "--beta",
+            help="Effect size: log-odds slope on log2(N) for H1 (default 0.30).",
+        ),
+    ] = 0.30,
+    alpha: Annotated[
+        float,
+        typer.Option("--alpha", help="One-sided significance threshold."),
+    ] = 0.05,
+    n_replicates: Annotated[
+        int,
+        typer.Option(
+            "--reps", help="Monte Carlo replicates for power estimation."
+        ),
+    ] = 200,
+    curve: Annotated[
+        Optional[str],
+        typer.Option(
+            "--curve",
+            help=(
+                "Comma-separated sample sizes for a power curve, "
+                "e.g. 60,80,100,120,140,160."
+            ),
+        ),
+    ] = None,
+    seed: Annotated[
+        int,
+        typer.Option("--seed", help="Random seed for reproducibility."),
+    ] = 0,
+    verbose: Annotated[bool, typer.Option("--verbose/--quiet")] = False,
+) -> None:
+    """Run a Monte Carlo power analysis for a pre-registered hypothesis.
+
+    Supports H1 (log-binomial LMM) natively; other hypotheses raise an error.
+    Use --curve to evaluate a range of sample sizes and print a power table.
+
+    Example::
+
+        origami-lab power --hypothesis H1 --n 120
+        origami-lab power --hypothesis H1 --curve 60,80,100,120,140,160
+    """
+    _setup_logging(verbose)
+
+    hypothesis = hypothesis.upper()
+    _SUPPORTED = {"H1"}
+    if hypothesis not in _SUPPORTED:
+        typer.echo(
+            f"Error: power analysis for {hypothesis!r} is not yet implemented. "
+            f"Supported hypotheses: {sorted(_SUPPORTED)}",
+            err=True,
+        )
+        raise typer.Exit(1)
+
+    from origami_lab.power import power_curve_h1, power_h1_lmm
+
+    if curve is not None:
+        try:
+            sample_sizes = [int(x.strip()) for x in curve.split(",")]
+        except ValueError as exc:
+            typer.echo(f"Error parsing --curve: {exc}", err=True)
+            raise typer.Exit(1)
+
+        typer.echo(
+            f"Power curve for {hypothesis}  beta={beta:.3f}  alpha={alpha:.3f}  "
+            f"reps={n_replicates}"
+        )
+        typer.echo(f"{'N':>6}  {'power':>8}  {'95% CI':>17}")
+        typer.echo("-" * 40)
+        results = power_curve_h1(
+            sample_sizes=sample_sizes,
+            beta_logn=beta,
+            alpha=alpha,
+            n_replicates=n_replicates,
+            seed=seed,
+        )
+        for sample_n, res in sorted(results.items()):
+            lo, hi = res.confidence_interval
+            typer.echo(
+                f"{sample_n:>6}  {res.power:>8.3f}  [{lo:.3f}, {hi:.3f}]"
+            )
+    else:
+        result = power_h1_lmm(
+            n_subjects=n,
+            beta_logn=beta,
+            alpha=alpha,
+            n_replicates=n_replicates,
+            seed=seed,
+        )
+        typer.echo(result.summary_line())
+
+
 if __name__ == "__main__":
     app()

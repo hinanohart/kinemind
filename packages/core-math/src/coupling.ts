@@ -20,7 +20,6 @@ import {
   type GroupElement,
   type SymmetryGroup,
   equivarianceResidual,
-  groupAction,
   reynoldsProject,
 } from "./symmetry.js";
 
@@ -272,6 +271,18 @@ function solveLinearSystem(A: number[][], B: number[][]): number[][] {
     ...(B[i] ?? new Array(m).fill(0)),
   ]);
 
+  // Compute Frobenius norm of A for adaptive singularity threshold.
+  let frobA = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const v = A[i]?.[j] ?? 0;
+      frobA += v * v;
+    }
+  }
+  frobA = Math.sqrt(frobA);
+  // eps_mach for float64 ≈ 2.22e-16; threshold = max(eps_mach * n * ||A||_F, 1e-300).
+  const singularThreshold = Math.max(2.22e-16 * n * frobA, 1e-300);
+
   for (let col = 0; col < n; col++) {
     let pivotRow = col;
     let pivotMag = Math.abs(aug[col]?.[col] ?? 0);
@@ -282,7 +293,7 @@ function solveLinearSystem(A: number[][], B: number[][]): number[][] {
         pivotRow = r;
       }
     }
-    if (pivotMag < 1e-12) {
+    if (pivotMag < singularThreshold) {
       throw new Error("solveLinearSystem: singular matrix");
     }
     if (pivotRow !== col) {

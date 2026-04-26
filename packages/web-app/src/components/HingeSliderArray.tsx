@@ -25,6 +25,7 @@ function HingeSlider({ index, value, onChange }: HingeSliderProps): React.ReactE
         H{index + 1}
       </span>
       <input
+        id={`hinge-slider-${index}`}
         type="range"
         min={-Math.PI}
         max={Math.PI}
@@ -53,8 +54,10 @@ export function HingeSliderArray(): React.ReactElement {
   const nHinges = nCells - 1;
 
   return (
-    <div className="panel space-y-3" role="group" aria-label="Hinge angle controls">
-      <h3 className="text-sm font-semibold text-slate-200">Intent Angles</h3>
+    <div className="panel space-y-3" role="group" aria-labelledby="hinge-sliders-heading">
+      <h3 id="hinge-sliders-heading" className="text-sm font-semibold text-slate-200">
+        Intent Angles
+      </h3>
       <p className="text-xs text-slate-500">Drag sliders to set physical fold angles (−π to +π)</p>
       <div className="space-y-2">
         {Array.from({ length: nHinges }, (_, i) => (
