@@ -13,6 +13,13 @@
     },
     "types": ["vite/client", "@react-three/fiber"]
   },
-  "include": ["src/**/*", "vite.config.ts", "tailwind.config.ts", "postcss.config.js", "playwright.config.ts", "tests/**/*"],
+  "include": [
+    "src/**/*",
+    "vite.config.ts",
+    "tailwind.config.ts",
+    "postcss.config.js",
+    "playwright.config.ts",
+    "tests/**/*"
+  ],
   "exclude": ["dist", "node_modules"]
 }

@@ -10,15 +10,15 @@
  *   - trialHistory: saved trial records
  */
 
-import { create } from "zustand";
 import {
+  type StripConfig,
+  applyCoupling,
+  identityCoupling,
   makeUniformStrip,
   mirrorCouplingMatrix,
-  identityCoupling,
-  applyCoupling,
-  type StripConfig,
 } from "@kinemind/core-math";
 import type { TrialResponse } from "@kinemind/shared-types";
+import { create } from "zustand";
 
 export type CouplingType = "mirror" | "identity";
 
@@ -75,9 +75,7 @@ function computeMental(
   if (nHinges === 0) return [];
 
   const coupling =
-    couplingType === "mirror"
-      ? mirrorCouplingMatrix(nHinges, beta)
-      : identityCoupling(nHinges);
+    couplingType === "mirror" ? mirrorCouplingMatrix(nHinges, beta) : identityCoupling(nHinges);
 
   return applyCoupling(coupling, thetaIntent, Math.PI);
 }
@@ -112,8 +110,7 @@ const DEFAULT_N_CELLS = 8;
 const DEFAULT_BETA = 0.6;
 
 export const useStripStore = create<StripStore>((set) => {
-  const { thetaIntent, thetaMental, mentalPrediction } =
-    buildInitialArrays(DEFAULT_N_CELLS);
+  const { thetaIntent, thetaMental, mentalPrediction } = buildInitialArrays(DEFAULT_N_CELLS);
 
   return {
     nCells: DEFAULT_N_CELLS,
@@ -128,8 +125,7 @@ export const useStripStore = create<StripStore>((set) => {
 
     setNCells: (n: number) => {
       const safeN = Math.max(2, Math.min(50, n));
-      const { thetaIntent, thetaMental, mentalPrediction } =
-        buildInitialArrays(safeN);
+      const { thetaIntent, thetaMental, mentalPrediction } = buildInitialArrays(safeN);
       set({
         nCells: safeN,
         config: makeUniformStrip(safeN),
@@ -148,10 +144,7 @@ export const useStripStore = create<StripStore>((set) => {
         return {
           thetaIntent: next,
           thetaMental: nextMental,
-          predictionRmse: computeRmse(
-            nextMental,
-            state.mentalPrediction.predicted,
-          ),
+          predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
         };
       });
     },
@@ -159,18 +152,11 @@ export const useStripStore = create<StripStore>((set) => {
     setBeta: (beta: number) => {
       set((state) => {
         const safeBeta = Math.max(0, Math.min(1, beta));
-        const nextMental = computeMental(
-          state.thetaIntent,
-          safeBeta,
-          state.couplingType,
-        );
+        const nextMental = computeMental(state.thetaIntent, safeBeta, state.couplingType);
         return {
           beta: safeBeta,
           thetaMental: nextMental,
-          predictionRmse: computeRmse(
-            nextMental,
-            state.mentalPrediction.predicted,
-          ),
+          predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
         };
       });
     },
@@ -181,10 +167,7 @@ export const useStripStore = create<StripStore>((set) => {
         return {
           couplingType: type,
           thetaMental: nextMental,
-          predictionRmse: computeRmse(
-            nextMental,
-            state.mentalPrediction.predicted,
-          ),
+          predictionRmse: computeRmse(nextMental, state.mentalPrediction.predicted),
         };
       });
     },

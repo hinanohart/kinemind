@@ -26,11 +26,7 @@ export interface StripState {
  * Build a uniform StripConfig with nCells of length L and angle limit angleMax.
  * Throws when nCells < 2 or non-finite parameters appear.
  */
-export function makeUniformStrip(
-  nCells: number,
-  cellLength = 1,
-  angleMax = Math.PI,
-): StripConfig {
+export function makeUniformStrip(nCells: number, cellLength = 1, angleMax = Math.PI): StripConfig {
   if (!Number.isInteger(nCells) || nCells < 2) {
     throw new Error(`makeUniformStrip: nCells must be an integer >= 2 (got ${nCells})`);
   }
@@ -47,10 +43,7 @@ export function makeUniformStrip(
   };
 }
 
-export function makeStrip(
-  cellLengths: readonly number[],
-  angleMax = Math.PI,
-): StripConfig {
+export function makeStrip(cellLengths: readonly number[], angleMax = Math.PI): StripConfig {
   if (cellLengths.length < 2) {
     throw new Error("makeStrip: need at least 2 cells");
   }
@@ -100,9 +93,7 @@ export function flipState(state: StripState): StripState {
 export type Assignment = "M" | "V" | "F";
 
 export function assignmentOf(state: StripState, eps = 1e-9): readonly Assignment[] {
-  return state.thetas.map((t) =>
-    t > eps ? "M" : t < -eps ? "V" : "F",
-  ) as Assignment[];
+  return state.thetas.map((t) => (t > eps ? "M" : t < -eps ? "V" : "F")) as Assignment[];
 }
 
 /** Cell base-plane vectors in local cell frame. */

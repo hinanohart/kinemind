@@ -8,7 +8,7 @@
  *   4. Coupling heatmap is rendered
  */
 
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("kinemind strip fold", () => {
   test.beforeEach(async ({ page }) => {
@@ -24,9 +24,7 @@ test.describe("kinemind strip fold", () => {
     await expect(h1).toBeVisible();
   });
 
-  test("hinge slider is interactive and updates angle display", async ({
-    page,
-  }) => {
+  test("hinge slider is interactive and updates angle display", async ({ page }) => {
     // Find the first hinge slider by aria-label
     const slider = page.getByRole("slider", { name: /Hinge 1 angle/i });
     await expect(slider).toBeVisible();
@@ -36,9 +34,7 @@ test.describe("kinemind strip fold", () => {
 
     // The angle display (degrees) should reflect the change
     // Accept any non-zero degree value indicating the slider moved
-    const angleDisplay = page
-      .locator('[aria-live="polite"][aria-atomic="true"]')
-      .first();
+    const angleDisplay = page.locator('[aria-live="polite"][aria-atomic="true"]').first();
     await expect(angleDisplay).not.toHaveText("0.0°");
   });
 

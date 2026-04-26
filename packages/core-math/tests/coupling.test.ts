@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import fc from "fast-check";
+import { describe, expect, it } from "vitest";
 import {
   applyCoupling,
   couplingEquivarianceResidual,
@@ -140,12 +140,8 @@ describe("estimateCoupling", () => {
     // All-zero intents -> XtX is zero and singular.
     const intents = [[0, 0, 0]];
     const responses = [[1, 0, 0]];
-    expect(() =>
-      estimateCoupling(intents, responses, { nHinges: 3 }),
-    ).toThrow();
-    expect(() =>
-      estimateCoupling(intents, responses, { nHinges: 3, lambda: 1e-3 }),
-    ).not.toThrow();
+    expect(() => estimateCoupling(intents, responses, { nHinges: 3 })).toThrow();
+    expect(() => estimateCoupling(intents, responses, { nHinges: 3, lambda: 1e-3 })).not.toThrow();
   });
 });
 

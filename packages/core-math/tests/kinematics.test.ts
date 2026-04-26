@@ -1,17 +1,11 @@
-import { describe, expect, it } from "vitest";
 import fc from "fast-check";
+import { describe, expect, it } from "vitest";
 import {
   cellCornersWorld,
   detectSelfIntersectionAabb,
   forwardKinematics,
 } from "../src/kinematics.js";
-import {
-  flatState,
-  flipState,
-  makeStrip,
-  makeUniformStrip,
-  reflectState,
-} from "../src/strip.js";
+import { flatState, flipState, makeStrip, makeUniformStrip, reflectState } from "../src/strip.js";
 
 const closeTo = (a: number, b: number, tol = 1e-9) => Math.abs(a - b) <= tol;
 const vecClose = (a: readonly number[], b: readonly number[], tol = 1e-9) =>
@@ -95,9 +89,7 @@ describe("forward kinematics", () => {
       fc.property(fc.integer({ min: 2, max: 30 }), (n) => {
         const cfg = makeUniformStrip(n);
         const result = forwardKinematics(cfg, flatState(cfg));
-        return result.cells.every((cell, i) =>
-          vecClose(cell.position, [i, 0, 0]),
-        );
+        return result.cells.every((cell, i) => vecClose(cell.position, [i, 0, 0]));
       }),
       { numRuns: 30 },
     );
@@ -105,9 +97,7 @@ describe("forward kinematics", () => {
 
   it("throws when angle vector length disagrees with config", () => {
     const cfg = makeUniformStrip(8);
-    expect(() =>
-      forwardKinematics(cfg, { thetas: [0, 0, 0] }),
-    ).toThrow(/expected 7/);
+    expect(() => forwardKinematics(cfg, { thetas: [0, 0, 0] })).toThrow(/expected 7/);
   });
 });
 

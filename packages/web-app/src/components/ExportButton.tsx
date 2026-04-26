@@ -2,8 +2,8 @@
  * Exports the current trial state as a JSON file conforming to TrialResponseSchema.
  */
 
-import { useStripStore } from "../stores/strip-store";
 import { TrialResponseSchema } from "@kinemind/shared-types";
+import { useStripStore } from "../stores/strip-store";
 
 // Inline minimal uuid v4 to avoid adding uuid package dependency.
 // We generate a UUID-compatible string using Web Crypto.

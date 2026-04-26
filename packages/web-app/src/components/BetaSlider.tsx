@@ -14,23 +14,14 @@ export function BetaSlider(): React.ReactElement {
   return (
     <div className="panel space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-200">
-          Coupling Parameters
-        </h3>
-        <span
-          className="text-xs text-blue-400 font-mono"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <h3 className="text-sm font-semibold text-slate-200">Coupling Parameters</h3>
+        <span className="text-xs text-blue-400 font-mono" aria-live="polite" aria-atomic="true">
           β = {beta.toFixed(2)}
         </span>
       </div>
 
       <div className="space-y-1">
-        <label
-          htmlFor="beta-slider"
-          className="text-xs text-slate-400 flex justify-between"
-        >
+        <label htmlFor="beta-slider" className="text-xs text-slate-400 flex justify-between">
           <span>Coupling strength β</span>
           <span className="text-slate-500">0 → identity · 1 → mirror</span>
         </label>

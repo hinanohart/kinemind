@@ -20,9 +20,7 @@ export function DiffPanel(): React.ReactElement {
   return (
     <div className="panel space-y-3" role="region" aria-label="Prediction difference panel">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-200">
-          Prediction vs Mental
-        </h3>
+        <h3 className="text-sm font-semibold text-slate-200">Prediction vs Mental</h3>
         <div
           className="text-xs font-mono"
           aria-live="polite"
@@ -59,11 +57,7 @@ export function DiffPanel(): React.ReactElement {
           const diffDeg = ((absDiff * 180) / Math.PI).toFixed(1);
 
           const color =
-            absDiff < 0.1
-              ? "bg-green-500"
-              : absDiff < 0.5
-                ? "bg-amber-500"
-                : "bg-red-500";
+            absDiff < 0.1 ? "bg-green-500" : absDiff < 0.5 ? "bg-amber-500" : "bg-red-500";
 
           return (
             <div
@@ -84,9 +78,7 @@ export function DiffPanel(): React.ReactElement {
                   style={{ width: `${barW}%` }}
                 />
               </div>
-              <span className="w-14 font-mono text-slate-300 text-right shrink-0">
-                {diffDeg}°
-              </span>
+              <span className="w-14 font-mono text-slate-300 text-right shrink-0">{diffDeg}°</span>
             </div>
           );
         })}

@@ -38,14 +38,7 @@ describe("V_4 group on hinge vectors", () => {
     for (const g of GROUP_ELEMENTS) {
       const M = groupActionMatrix(G, g);
       // 4x4 determinant via cofactor expansion (small enough).
-      const det = det4(
-        M.map((r) => [...r]) as [
-          number[],
-          number[],
-          number[],
-          number[],
-        ],
-      );
+      const det = det4(M.map((r) => [...r]) as [number[], number[], number[], number[]]);
       expect(Math.abs(Math.abs(det) - 1)).toBeLessThan(1e-9);
     }
   });
@@ -107,11 +100,8 @@ function det4(M: [number[], number[], number[], number[]]): number {
 
 function det3(M: number[][]): number {
   return (
-    (M[0]?.[0] ?? 0) *
-      ((M[1]?.[1] ?? 0) * (M[2]?.[2] ?? 0) - (M[1]?.[2] ?? 0) * (M[2]?.[1] ?? 0)) -
-    (M[0]?.[1] ?? 0) *
-      ((M[1]?.[0] ?? 0) * (M[2]?.[2] ?? 0) - (M[1]?.[2] ?? 0) * (M[2]?.[0] ?? 0)) +
-    (M[0]?.[2] ?? 0) *
-      ((M[1]?.[0] ?? 0) * (M[2]?.[1] ?? 0) - (M[1]?.[1] ?? 0) * (M[2]?.[0] ?? 0))
+    (M[0]?.[0] ?? 0) * ((M[1]?.[1] ?? 0) * (M[2]?.[2] ?? 0) - (M[1]?.[2] ?? 0) * (M[2]?.[1] ?? 0)) -
+    (M[0]?.[1] ?? 0) * ((M[1]?.[0] ?? 0) * (M[2]?.[2] ?? 0) - (M[1]?.[2] ?? 0) * (M[2]?.[0] ?? 0)) +
+    (M[0]?.[2] ?? 0) * ((M[1]?.[0] ?? 0) * (M[2]?.[1] ?? 0) - (M[1]?.[1] ?? 0) * (M[2]?.[0] ?? 0))
   );
 }

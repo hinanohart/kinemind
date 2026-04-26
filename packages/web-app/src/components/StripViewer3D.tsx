@@ -9,13 +9,13 @@
  * Quaternion conversion: core-math uses (w, x, y, z), Three.js uses (x, y, z, w).
  */
 
-import { Suspense, useRef, useMemo } from "react";
+import { Grid, OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Grid } from "@react-three/drei";
+import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 import { forwardKinematics, makeUniformStrip } from "@kinemind/core-math";
-import type { Vec3, Quat } from "@kinemind/core-math";
+import type { Quat, Vec3 } from "@kinemind/core-math";
 import { useStripStore } from "../stores/strip-store";
 
 /** Convert core-math Vec3 → Three.js Vector3 */
@@ -48,18 +48,11 @@ function CellMesh({
   const meshRef = useRef<THREE.Mesh>(null);
 
   // Center offset: cell's origin is at leading edge, center at cellLength/2
-  const centreOffset = useMemo(
-    () => new THREE.Vector3(cellLength / 2, 0, 0),
-    [cellLength],
-  );
+  const centreOffset = useMemo(() => new THREE.Vector3(cellLength / 2, 0, 0), [cellLength]);
 
   return (
     <group position={position} quaternion={quaternion}>
-      <mesh
-        ref={meshRef}
-        position={centreOffset}
-        aria-label={`Cell ${index + 1}`}
-      >
+      <mesh ref={meshRef} position={centreOffset} aria-label={`Cell ${index + 1}`}>
         <planeGeometry args={[cellLength, 1]} />
         <meshStandardMaterial
           color={color}
@@ -72,9 +65,7 @@ function CellMesh({
       </mesh>
       {/* Hinge edge line at leading edge */}
       <lineSegments>
-        <edgesGeometry
-          args={[new THREE.PlaneGeometry(cellLength, 1)]}
-        />
+        <edgesGeometry args={[new THREE.PlaneGeometry(cellLength, 1)]} />
         <lineBasicMaterial color="#ffffff" opacity={0.15} transparent />
       </lineSegments>
     </group>
@@ -135,11 +126,7 @@ function SceneSetup(): React.ReactElement {
   useFrame(({ clock }) => {
     if (lightRef.current) {
       const t = clock.elapsedTime * 0.3;
-      lightRef.current.position.set(
-        Math.cos(t) * 5,
-        5,
-        Math.sin(t) * 5,
-      );
+      lightRef.current.position.set(Math.cos(t) * 5, 5, Math.sin(t) * 5);
     }
   });
   return (
@@ -159,8 +146,8 @@ function WebGLFallback(): React.ReactElement {
       <div>
         <p className="font-semibold mb-1">WebGL not available</p>
         <p className="text-xs text-slate-500">
-          This browser does not support WebGL. Please use a modern browser such
-          as Chrome, Firefox, or Safari to view the 3D strip.
+          This browser does not support WebGL. Please use a modern browser such as Chrome, Firefox,
+          or Safari to view the 3D strip.
         </p>
       </div>
     </div>
@@ -220,9 +207,7 @@ export function StripViewer3D(): React.ReactElement {
   const webglSupported = useMemo(() => {
     try {
       const canvas = document.createElement("canvas");
-      return !!(
-        canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
-      );
+      return !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
     } catch {
       return false;
     }

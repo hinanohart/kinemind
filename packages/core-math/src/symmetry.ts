@@ -13,12 +13,7 @@
 
 export type GroupElement = "e" | "sigma" | "tau" | "sigmatau";
 
-export const GROUP_ELEMENTS: readonly GroupElement[] = [
-  "e",
-  "sigma",
-  "tau",
-  "sigmatau",
-];
+export const GROUP_ELEMENTS: readonly GroupElement[] = ["e", "sigma", "tau", "sigmatau"];
 
 export interface SymmetryGroup {
   /** Number of hinges (state-vector dimension). */
@@ -144,10 +139,7 @@ function transposeMatrix(M: number[][]): number[][] {
 /**
  * Frobenius distance to the equivariant subspace, useful as an empirical test.
  */
-export function equivarianceResidual(
-  G: SymmetryGroup,
-  M: readonly (readonly number[])[],
-): number {
+export function equivarianceResidual(G: SymmetryGroup, M: readonly (readonly number[])[]): number {
   const proj = reynoldsProject(G, M);
   let acc = 0;
   for (let i = 0; i < G.nHinges; i++) {

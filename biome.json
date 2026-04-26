@@ -16,7 +16,10 @@
       "**/coverage/**",
       "**/*.generated.*",
       "**/playwright-report/**",
-      "**/test-results/**"
+      "**/test-results/**",
+      "**/tests/data/**",
+      "**/uv.lock",
+      "**/pnpm-lock.yaml"
     ]
   },
   "organizeImports": {
@@ -27,14 +30,21 @@
     "rules": {
       "recommended": true,
       "complexity": {
-        "noForEach": "off"
+        "noForEach": "off",
+        "useLiteralKeys": "off"
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useNamingConvention": "off"
+        "useNamingConvention": "off",
+        "noUnusedTemplateLiteral": "off",
+        "noUselessElse": "off"
       },
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "off"
+      },
+      "a11y": {
+        "useSemanticElements": "off"
       }
     }
   },

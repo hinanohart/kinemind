@@ -28,9 +28,7 @@ export function MentalPredictionPanel(): React.ReactElement {
   return (
     <div className="panel space-y-3" role="region" aria-label="Mental prediction panel">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-200">
-          Mental Predictions
-        </h3>
+        <h3 className="text-sm font-semibold text-slate-200">Mental Predictions</h3>
         <span
           className="text-xs text-amber-400 font-mono"
           aria-live="polite"
@@ -41,8 +39,7 @@ export function MentalPredictionPanel(): React.ReactElement {
         </span>
       </div>
       <p className="text-xs text-slate-500">
-        For each hinge: check if you think it co-activates, then enter your
-        predicted angle (°)
+        For each hinge: check if you think it co-activates, then enter your predicted angle (°)
       </p>
 
       <div className="space-y-1">
@@ -60,10 +57,7 @@ export function MentalPredictionPanel(): React.ReactElement {
           const actualAngle = thetaMental[i] ?? 0;
 
           return (
-            <div
-              key={i}
-              className="grid grid-cols-[2rem_1fr_5rem_5rem] gap-2 items-center text-xs"
-            >
+            <div key={i} className="grid grid-cols-[2rem_1fr_5rem_5rem] gap-2 items-center text-xs">
               <span className="text-slate-400" aria-hidden="true">
                 {i + 1}
               </span>
@@ -76,9 +70,7 @@ export function MentalPredictionPanel(): React.ReactElement {
                   className="w-3 h-3 accent-blue-500"
                   aria-label={`Hinge ${i + 1} co-activates`}
                 />
-                <span className="text-slate-300 text-xs">
-                  {isCoupled ? "yes" : "no"}
-                </span>
+                <span className="text-slate-300 text-xs">{isCoupled ? "yes" : "no"}</span>
               </label>
 
               <input

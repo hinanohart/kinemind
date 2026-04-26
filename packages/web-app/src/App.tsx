@@ -7,14 +7,14 @@
  *   Right  — heatmap + prediction + diff panels
  */
 
-import { Header } from "./components/Header";
-import { StripViewer3D } from "./components/StripViewer3D";
-import { HingeSliderArray } from "./components/HingeSliderArray";
-import { MentalPredictionPanel } from "./components/MentalPredictionPanel";
+import { BetaSlider } from "./components/BetaSlider";
 import { CouplingHeatmap } from "./components/CouplingHeatmap";
 import { DiffPanel } from "./components/DiffPanel";
 import { ExportButton } from "./components/ExportButton";
-import { BetaSlider } from "./components/BetaSlider";
+import { Header } from "./components/Header";
+import { HingeSliderArray } from "./components/HingeSliderArray";
+import { MentalPredictionPanel } from "./components/MentalPredictionPanel";
+import { StripViewer3D } from "./components/StripViewer3D";
 
 export function App(): React.ReactElement {
   return (
@@ -31,20 +31,14 @@ export function App(): React.ReactElement {
         </section>
 
         {/* Center: Controls */}
-        <aside
-          className="flex flex-col gap-2 overflow-y-auto"
-          aria-label="Strip controls"
-        >
+        <aside className="flex flex-col gap-2 overflow-y-auto" aria-label="Strip controls">
           <HingeSliderArray />
           <BetaSlider />
           <ExportButton />
         </aside>
 
         {/* Right: Data panels */}
-        <aside
-          className="flex flex-col gap-2 overflow-y-auto"
-          aria-label="Data analysis panels"
-        >
+        <aside className="flex flex-col gap-2 overflow-y-auto" aria-label="Data analysis panels">
           <CouplingHeatmap />
           <MentalPredictionPanel />
           <DiffPanel />

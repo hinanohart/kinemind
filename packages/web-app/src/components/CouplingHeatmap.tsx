@@ -5,12 +5,9 @@
  * The diagonal is always 1.0 (self-coupling).
  */
 
+import { identityCoupling, mirrorCouplingMatrix } from "@kinemind/core-math";
 import { useMemo } from "react";
 import { useStripStore } from "../stores/strip-store";
-import {
-  mirrorCouplingMatrix,
-  identityCoupling,
-} from "@kinemind/core-math";
 
 const CELL_SIZE = 28;
 const PADDING = 24;
@@ -41,9 +38,7 @@ export function CouplingHeatmap(): React.ReactElement {
 
   const matrix = useMemo(() => {
     const coupling =
-      couplingType === "mirror"
-        ? mirrorCouplingMatrix(nHinges, beta)
-        : identityCoupling(nHinges);
+      couplingType === "mirror" ? mirrorCouplingMatrix(nHinges, beta) : identityCoupling(nHinges);
     return coupling.matrix;
   }, [nHinges, beta, couplingType]);
 
@@ -65,14 +60,8 @@ export function CouplingHeatmap(): React.ReactElement {
   const ariaDesc = `${nHinges}x${nHinges} coupling matrix. Type: ${couplingType}, beta: ${beta.toFixed(2)}. Diagonal entries are 1.0 (self-coupling). Off-diagonal entries show cross-hinge coupling strength.`;
 
   return (
-    <div
-      className="panel space-y-2"
-      role="region"
-      aria-label="Coupling matrix heatmap"
-    >
-      <h3 className="text-sm font-semibold text-slate-200">
-        Coupling Matrix C
-      </h3>
+    <div className="panel space-y-2" role="region" aria-label="Coupling matrix heatmap">
+      <h3 className="text-sm font-semibold text-slate-200">Coupling Matrix C</h3>
       <p className="text-xs text-slate-500">
         Green = positive coupling · Red = negative · Diagonal = self (1.0)
       </p>
@@ -83,7 +72,6 @@ export function CouplingHeatmap(): React.ReactElement {
           height={svgH}
           role="img"
           aria-label={`Coupling heatmap: ${nHinges}x${nHinges} matrix`}
-          aria-description={ariaDesc}
         >
           <title>Coupling Matrix Heatmap</title>
           <desc>{ariaDesc}</desc>
@@ -120,9 +108,7 @@ export function CouplingHeatmap(): React.ReactElement {
             Array.from({ length: nHinges }, (_, c) => {
               const v = matrix[r]?.[c] ?? 0;
               const isDiag = r === c;
-              const color = isDiag
-                ? "rgb(59,130,246)"
-                : symlogColor(v, maxOffDiag);
+              const color = isDiag ? "rgb(59,130,246)" : symlogColor(v, maxOffDiag);
               const x = LABEL_SIZE + c * CELL_SIZE;
               const y = LABEL_SIZE + r * CELL_SIZE;
               const textVal = formatVal(v);

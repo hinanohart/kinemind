@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import fc from "fast-check";
+import { describe, expect, it } from "vitest";
 import {
   EPS,
   QUAT_IDENTITY,
@@ -60,14 +60,22 @@ describe("quaternion algebra", () => {
 
   it("composition is associative", () => {
     fc.assert(
-      fc.property(arbAxis, arbAngle, arbAxis, arbAngle, arbAxis, arbAngle, (a1, t1, a2, t2, a3, t3) => {
-        const q1 = quatFromAxisAngle(a1, t1);
-        const q2 = quatFromAxisAngle(a2, t2);
-        const q3 = quatFromAxisAngle(a3, t3);
-        const left = quatMul(quatMul(q1, q2), q3);
-        const right = quatMul(q1, quatMul(q2, q3));
-        return left.every((x, i) => closeTo(x, right[i] ?? Number.NaN, 1e-7));
-      }),
+      fc.property(
+        arbAxis,
+        arbAngle,
+        arbAxis,
+        arbAngle,
+        arbAxis,
+        arbAngle,
+        (a1, t1, a2, t2, a3, t3) => {
+          const q1 = quatFromAxisAngle(a1, t1);
+          const q2 = quatFromAxisAngle(a2, t2);
+          const q3 = quatFromAxisAngle(a3, t3);
+          const left = quatMul(quatMul(q1, q2), q3);
+          const right = quatMul(q1, quatMul(q2, q3));
+          return left.every((x, i) => closeTo(x, right[i] ?? Number.NaN, 1e-7));
+        },
+      ),
       { numRuns: 50 },
     );
   });
@@ -163,7 +171,12 @@ describe("vector helpers", () => {
     const b: [number, number, number] = [4, 5, 6];
     const ab = v3Cross(a, b);
     const ba = v3Cross(b, a);
-    expect(vecClose(ab, ba.map((x) => -x))).toBe(true);
+    expect(
+      vecClose(
+        ab,
+        ba.map((x) => -x),
+      ),
+    ).toBe(true);
   });
 
   it("v3Sub matches subtraction", () => {

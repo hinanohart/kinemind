@@ -16,12 +16,12 @@
  */
 
 import {
-  type GroupElement,
   GROUP_ELEMENTS,
-  groupAction,
-  reynoldsProject,
+  type GroupElement,
   type SymmetryGroup,
   equivarianceResidual,
+  groupAction,
+  reynoldsProject,
 } from "./symmetry.js";
 
 export type Matrix = readonly (readonly number[])[];
@@ -65,19 +65,14 @@ export function identityCoupling(nHinges: number): MentalCoupling {
  * For beta in [0, 1] the matrix is contracting (all eigenvalues in [1-beta, 1+beta] >= 0)
  * and V_4-equivariant by construction.
  */
-export function mirrorCouplingMatrix(
-  nHinges: number,
-  beta: number,
-): MentalCoupling {
+export function mirrorCouplingMatrix(nHinges: number, beta: number): MentalCoupling {
   if (!Number.isInteger(nHinges) || nHinges < 1) {
     throw new Error("mirrorCouplingMatrix: nHinges must be a positive integer");
   }
   if (!(beta >= 0) || !(beta <= 1)) {
     throw new Error(`mirrorCouplingMatrix: beta must be in [0, 1] (got ${beta})`);
   }
-  const M: number[][] = Array.from({ length: nHinges }, () =>
-    new Array<number>(nHinges).fill(0),
-  );
+  const M: number[][] = Array.from({ length: nHinges }, () => new Array<number>(nHinges).fill(0));
   for (let i = 0; i < nHinges; i++) {
     M[i]![i] = 1;
     const j = nHinges - 1 - i;
@@ -159,12 +154,8 @@ export function estimateCoupling(
   }
 
   // Build X^T X (nHinges x nHinges) and X^T Y (nHinges x nHinges).
-  const xtx: number[][] = Array.from({ length: nHinges }, () =>
-    new Array<number>(nHinges).fill(0),
-  );
-  const xty: number[][] = Array.from({ length: nHinges }, () =>
-    new Array<number>(nHinges).fill(0),
-  );
+  const xtx: number[][] = Array.from({ length: nHinges }, () => new Array<number>(nHinges).fill(0));
+  const xty: number[][] = Array.from({ length: nHinges }, () => new Array<number>(nHinges).fill(0));
   for (let k = 0; k < K; k++) {
     const x = intents[k]!;
     const y = responses[k]!;
@@ -253,9 +244,7 @@ export function spectralRadius(
 export function effectiveRank(M: Matrix, threshold = 1e-6): number {
   const n = M.length;
   if (n === 0) return 0;
-  const MMT: number[][] = Array.from({ length: n }, () =>
-    new Array<number>(n).fill(0),
-  );
+  const MMT: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0));
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       let acc = 0;
@@ -278,9 +267,10 @@ function solveLinearSystem(A: number[][], B: number[][]): number[][] {
   // Solve A X = B for X. A is n x n, B is n x m. Gauss-Jordan on augmented.
   const n = A.length;
   const m = B[0]?.length ?? 0;
-  const aug: number[][] = Array.from({ length: n }, (_, i) =>
-    [...(A[i] ?? new Array(n).fill(0)), ...(B[i] ?? new Array(m).fill(0))],
-  );
+  const aug: number[][] = Array.from({ length: n }, (_, i) => [
+    ...(A[i] ?? new Array(n).fill(0)),
+    ...(B[i] ?? new Array(m).fill(0)),
+  ]);
 
   for (let col = 0; col < n; col++) {
     let pivotRow = col;

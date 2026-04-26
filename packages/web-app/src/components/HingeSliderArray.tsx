@@ -15,20 +15,13 @@ interface HingeSliderProps {
   readonly onChange: (index: number, value: number) => void;
 }
 
-function HingeSlider({
-  index,
-  value,
-  onChange,
-}: HingeSliderProps): React.ReactElement {
+function HingeSlider({ index, value, onChange }: HingeSliderProps): React.ReactElement {
   const deg = formatAngle(value);
   const label = `Hinge ${index + 1} angle`;
 
   return (
     <div className="flex items-center gap-2 text-xs">
-      <span
-        className="w-14 text-slate-400 shrink-0 text-right"
-        aria-hidden="true"
-      >
+      <span className="w-14 text-slate-400 shrink-0 text-right" aria-hidden="true">
         H{index + 1}
       </span>
       <input
@@ -45,11 +38,7 @@ function HingeSlider({
         aria-valuenow={value}
         aria-valuetext={deg}
       />
-      <span
-        className="w-14 text-blue-400 font-mono shrink-0"
-        aria-live="polite"
-        aria-atomic="true"
-      >
+      <span className="w-14 text-blue-400 font-mono shrink-0" aria-live="polite" aria-atomic="true">
         {deg}
       </span>
     </div>
@@ -66,17 +55,10 @@ export function HingeSliderArray(): React.ReactElement {
   return (
     <div className="panel space-y-3" role="group" aria-label="Hinge angle controls">
       <h3 className="text-sm font-semibold text-slate-200">Intent Angles</h3>
-      <p className="text-xs text-slate-500">
-        Drag sliders to set physical fold angles (−π to +π)
-      </p>
+      <p className="text-xs text-slate-500">Drag sliders to set physical fold angles (−π to +π)</p>
       <div className="space-y-2">
         {Array.from({ length: nHinges }, (_, i) => (
-          <HingeSlider
-            key={i}
-            index={i}
-            value={thetaIntent[i] ?? 0}
-            onChange={setThetaIntent}
-          />
+          <HingeSlider key={i} index={i} value={thetaIntent[i] ?? 0} onChange={setThetaIntent} />
         ))}
       </div>
     </div>

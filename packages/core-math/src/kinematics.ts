@@ -48,10 +48,7 @@ export interface KinematicsResult {
  * Compute world-frame poses for every cell. Runs in O(nCells) time.
  * Throws if the state shape disagrees with the strip config.
  */
-export function forwardKinematics(
-  config: StripConfig,
-  state: StripState,
-): KinematicsResult {
+export function forwardKinematics(config: StripConfig, state: StripState): KinematicsResult {
   if (state.thetas.length !== config.nCells - 1) {
     throw new Error(
       `forwardKinematics: expected ${config.nCells - 1} hinge angles, got ${state.thetas.length}`,
@@ -72,10 +69,7 @@ export function forwardKinematics(
       const Li = config.cellLengths[i] ?? 0;
       const theta = state.thetas[i] ?? 0;
       // Translate to the shared edge, then rotate about the hinge axis.
-      frame = se3Compose(
-        frame,
-        se3Compose(trans([Li, 0, 0]), rot(CELL_Y_AXIS, theta)),
-      );
+      frame = se3Compose(frame, se3Compose(trans([Li, 0, 0]), rot(CELL_Y_AXIS, theta)));
     }
   }
 
@@ -208,10 +202,7 @@ export function centroidJacobian(
       J.push([0, 0, 0]);
       continue;
     }
-    const diff = v3Scale(
-      [plus[0] - minus[0], plus[1] - minus[1], plus[2] - minus[2]],
-      1 / (2 * h),
-    );
+    const diff = v3Scale([plus[0] - minus[0], plus[1] - minus[1], plus[2] - minus[2]], 1 / (2 * h));
     J.push(diff);
   }
   return J;
@@ -228,11 +219,7 @@ export const STRIP_AXES = {
  * Orientation reproduction helper. Compose all hinge rotations into a single
  * transform applied to v. Useful for unit tests that round-trip a unit vector.
  */
-export function chainRotateVector(
-  config: StripConfig,
-  state: StripState,
-  v: Vec3,
-): Vec3 {
+export function chainRotateVector(config: StripConfig, state: StripState, v: Vec3): Vec3 {
   const { cells } = forwardKinematics(config, state);
   const last = cells[cells.length - 1];
   if (!last) {
