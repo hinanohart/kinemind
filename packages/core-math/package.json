@@ -1,0 +1,51 @@
+{
+  "name": "@kinemind/core-math",
+  "version": "0.1.0",
+  "description": "SE(3) kinematics, V4 symmetry group action, and mental coupling matrix for 1D origami strips",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./se3": {
+      "types": "./dist/se3.d.ts",
+      "import": "./dist/se3.js"
+    },
+    "./strip": {
+      "types": "./dist/strip.d.ts",
+      "import": "./dist/strip.js"
+    },
+    "./kinematics": {
+      "types": "./dist/kinematics.d.ts",
+      "import": "./dist/kinematics.js"
+    },
+    "./coupling": {
+      "types": "./dist/coupling.d.ts",
+      "import": "./dist/coupling.js"
+    },
+    "./symmetry": {
+      "types": "./dist/symmetry.d.ts",
+      "import": "./dist/symmetry.js"
+    }
+  },
+  "files": ["dist", "src", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "fast-check": "^3.23.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,29 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly.
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what you expected vs what you observed.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal reproduction. Code snippet or numbered steps.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: kinemind version / commit SHA
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: "OS, Node version, browser version, Python version where relevant."

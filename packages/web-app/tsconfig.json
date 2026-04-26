@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client", "@react-three/fiber"]
+  },
+  "include": ["src/**/*", "vite.config.ts", "tailwind.config.ts", "postcss.config.js", "playwright.config.ts", "tests/**/*"],
+  "exclude": ["dist", "node_modules"]
+}

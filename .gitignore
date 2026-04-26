@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.eggs/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# uv
+.uv-cache/
+
+# Test coverage
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+.coverage.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (R11)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+.kaggle/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Playwright
+playwright-report/
+test-results/
+
+# Astro / Starlight
+.astro/
+
+# Generated
+docs/api/
+*.generated.*

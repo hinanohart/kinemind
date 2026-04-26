@@ -1,0 +1,27 @@
+name: Experiment proposal
+description: Propose a new KMM experiment to add or replicate.
+labels: [experiment]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: One sentence, falsifiable. Cite related work if any.
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Design
+      description: Independent / dependent variables, sample-size rationale.
+    validations:
+      required: true
+  - type: input
+    id: prereg
+    attributes:
+      label: Pre-registration link
+      description: OSF, AsPredicted, or similar.
+  - type: textarea
+    id: ethics
+    attributes:
+      label: Ethics / data governance

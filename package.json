@@ -1,0 +1,47 @@
+{
+  "name": "kinemind",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kinematic Mental Mirroring research platform: measure how brains predict articulated folding kinematics",
+  "license": "MIT",
+  "author": "hinanohart",
+  "homepage": "https://github.com/hinanohart/kinemind",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hinanohart/kinemind.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hinanohart/kinemind/issues"
+  },
+  "keywords": [
+    "cognitive-science",
+    "origami",
+    "kinematics",
+    "mental-rotation",
+    "mental-folding",
+    "psychophysics",
+    "jspsych",
+    "threejs",
+    "react",
+    "se3"
+  ],
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "pnpm -r --parallel build",
+    "test": "pnpm -r --parallel test",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "dev": "pnpm -F @kinemind/web-app dev",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@changesets/cli": "^2.27.10",
+    "typescript": "^5.6.3"
+  }
+}

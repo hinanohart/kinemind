@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "kinemind: A research platform for Kinematic Mental Mirroring"
+message: "If you use kinemind in your research, please cite it as below."
+type: software
+authors:
+  - alias: hinanohart
+    given-names: "kinemind contributors"
+    family-names: ""
+repository-code: "https://github.com/hinanohart/kinemind"
+url: "https://github.com/hinanohart/kinemind"
+license: MIT
+version: "0.1.0"
+date-released: "2026-04-27"
+keywords:
+  - cognitive-science
+  - origami
+  - kinematics
+  - mental-folding
+  - mental-rotation
+  - psychophysics
+  - threejs
+  - jspsych
+abstract: >-
+  kinemind is an open-source research platform that measures Kinematic
+  Mental Mirroring (KMM): the involuntary co-activation of a non-attended
+  hinge during the deliberate mental folding of a target hinge in an
+  articulated object. It bundles a TypeScript SE(3) kinematics core, a
+  React + Three.js interactive viewer, and a numerically identical
+  Python analysis pipeline.
