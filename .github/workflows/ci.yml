@@ -98,7 +98,7 @@ jobs:
       - run: pnpm -F @kinemind/core-math build
       - run: pnpm -F @kinemind/shared-types build
       - run: pnpm -F @kinemind/web-app build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: web-app-dist
           path: packages/web-app/dist
