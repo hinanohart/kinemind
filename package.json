@@ -40,7 +40,7 @@
     "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.4.13",
     "@changesets/cli": "^2.27.10",
     "typescript": "^5.6.3"
   },
