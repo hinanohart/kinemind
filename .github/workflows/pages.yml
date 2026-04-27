@@ -29,6 +29,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm -F @kinemind/core-math build
+      - run: pnpm -F @kinemind/shared-types build
       - run: pnpm -F @kinemind/web-app build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
